@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cave William — Inventaire</title>
+<meta name="theme-color" content="#F2EAD8">
+<meta name="description" content="Inventaire personnel de la cave à vin de William">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="ov open" id="login-gate">
+  <div class="modal" style="width:340px">
+    <h2>Cave William</h2>
+    <div class="fg" style="margin-bottom:10px"><label>Identifiant</label><input id="login-user" autocomplete="username"></div>
+    <div class="fg" style="margin-bottom:6px"><label>Mot de passe</label><input id="login-pass" type="password" autocomplete="current-password"></div>
+    <div id="login-error" style="color:#c0392b;font-size:0.75rem;min-height:1.2em;margin-bottom:8px"></div>
+    <div class="mf" style="justify-content:stretch">
+      <button class="bs" style="width:100%" onclick="tryLogin()">Entrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-content" style="display:none">
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <img src="assets/logo-terra.png" alt="Vignes et Vins" class="brand-logo">
+      <div><h1>Cave William <small>— Inventaire personnel</small></h1></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="stats" id="stats"></div>
+      <button class="install-btn" id="install-btn">📲 Installer l'app</button>
+    </div>
+  </div>
+  <div class="controls">
+    <!-- Ligne 1 : recherche + couleur + tri + ajout -->
+    <div class="ctrl-row">
+      <input type="text" id="search" placeholder="Rechercher…">
+      <span class="filter-label">Type :</span>
+      <div class="filters" id="f-color">
+        <button class="fb active" data-f="all">Tout</button>
+        <button class="fb" data-f="rouge">Rouges</button>
+        <button class="fb" data-f="blanc">Blancs</button>
+        <button class="fb" data-f="porto">Portos</button>
+      </div>
+      <select id="sort">
+        <option value="status">À boire bientôt</option>
+        <option value="mil_asc">Millésime ↑</option>
+        <option value="mil_desc">Millésime ↓</option>
+        <option value="region">Région</option>
+        <option value="domaine">Domaine</option>
+        <option value="qty">Quantité</option>
+      </select>
+      <button class="btn-add" onclick="openModal()">+ Ajouter</button>
+    </div>
+    <!-- Ligne 2 : filtre par caisse -->
+    <div class="ctrl-row">
+      <span class="filter-label">Caisse :</span>
+      <div class="filters" id="f-caisse">
+        <button class="fb caisse-btn active" data-c="all">Toutes</button>
+        <button class="fb caisse-btn" data-c="1">Caisse 1</button>
+        <button class="fb caisse-btn" data-c="2">Caisse 2</button>
+        <button class="fb caisse-btn" data-c="3">Caisse 3</button>
+        <button class="fb caisse-btn" data-c="4">Caisse 4</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main><div class="grid" id="grid"></div></main>
+
+<div class="ov" id="ov">
+  <div class="modal">
+    <h2 id="m-title">Ajouter un vin</h2>
+    <input type="hidden" id="eid">
+    <div class="fr">
+      <div class="fg"><label>Domaine *</label><input id="fd" placeholder="ex: Domaine des Perdrix"></div>
+      <div class="fg"><label>Nom du vin *</label><input id="fv" placeholder="ex: Echezeaux Grand Cru"></div>
+      <div class="fg"><label>Appellation</label><input id="fa" placeholder="ex: Echezeaux"></div>
+      <div class="fg"><label>Région</label><input id="frg" placeholder="ex: Bourgogne"></div>
+      <div class="fg"><label>Millésime</label><input type="number" id="fm" placeholder="2021" min="1900" max="2030"></div>
+      <div class="fg"><label>Couleur</label>
+        <select id="fc"><option value="rouge">Rouge</option><option value="blanc">Blanc</option><option value="porto">Porto / Liquoreux</option><option value="inconnu">Inconnu</option></select>
+      </div>
+      <div class="fg"><label>Quantité</label><input type="number" id="fq" value="1" min="0" max="99"></div>
+      <div class="fg"><label>Caisse n°</label><input type="number" id="fca" placeholder="1" min="1"></div>
+    </div>
+    <div class="sec-lbl">Fenêtre de dégustation</div>
+    <div class="fr">
+      <div class="fg"><label>Début</label><input type="number" id="fdb" placeholder="2026"></div>
+      <div class="fg"><label>Fin</label><input type="number" id="ffn" placeholder="2035"></div>
+      <div class="fg"><label>Début apogée</label><input type="number" id="fad" placeholder="2028"></div>
+      <div class="fg"><label>Fin apogée</label><input type="number" id="faf" placeholder="2033"></div>
+    </div>
+    <div class="fr"><div class="fg fg-full"><label>Notes</label><textarea id="fno" placeholder="Carafage, accords, remarques…"></textarea></div></div>
+    <div class="mf">
+      <button class="bc" onclick="closeModal()">Annuler</button>
+      <button class="bs" onclick="saveWine()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
