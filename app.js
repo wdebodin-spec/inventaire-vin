@@ -111,12 +111,18 @@ function render(){
   const r=all.filter(w=>w.couleur==='rouge').reduce((s,w)=>s+w.quantite,0);
   const b=all.filter(w=>w.couleur==='blanc').reduce((s,w)=>s+w.quantite,0);
   const p=all.filter(w=>w.couleur==='porto').reduce((s,w)=>s+w.quantite,0);
+  const bt=all.filter(w=>w.format==='bouteille').reduce((s,w)=>s+w.quantite,0);
+  const mg=all.filter(w=>w.format==='magnum').reduce((s,w)=>s+w.quantite,0);
+  const jb=all.filter(w=>w.format==='jeroboam').reduce((s,w)=>s+w.quantite,0);
   const cc=c=>all.filter(w=>w.caisse===c).reduce((s,w)=>s+w.quantite,0);
   document.getElementById('stats').innerHTML=
     `<div class="stat"><div class="stat-v">${tot}</div><div class="stat-l">Total</div></div>
      <div class="stat"><div class="stat-v">${r}</div><div class="stat-l">Rouges</div></div>
      <div class="stat"><div class="stat-v">${b}</div><div class="stat-l">Blancs</div></div>
-     <div class="stat"><div class="stat-v">${p}</div><div class="stat-l">Portos</div></div>`;
+     <div class="stat"><div class="stat-v">${p}</div><div class="stat-l">Portos</div></div>
+     <div class="stat"><div class="stat-v">${bt}</div><div class="stat-l">Bouteilles</div></div>
+     <div class="stat"><div class="stat-v">${mg}</div><div class="stat-l">Magnums</div></div>
+     <div class="stat"><div class="stat-v">${jb}</div><div class="stat-l">Jéroboams</div></div>`;
 
   document.querySelectorAll('.caisse-btn[data-c]').forEach(btn=>{
     const c=btn.dataset.c;
