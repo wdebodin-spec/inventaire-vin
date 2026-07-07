@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cave-william-v1';
+const CACHE_NAME = 'cave-william-v2';
 const PRECACHE = [
   './',
   './index.html',
@@ -25,23 +25,23 @@ self.addEventListener('activate', e=>{
   self.clients.claim();
 });
 
-// Network-first for wines.json so new entries show up as soon as there's a connection;
-// falls back to cache when offline. Cache-first for everything else (static assets).
+// Network-first for the app shell (html/css/js/json) so updates show up as soon as
+// there's a connection; falls back to cache when offline. Cache-first only for
+// heavy static assets (icons/fonts/images) that rarely change.
 self.addEventListener('fetch', e=>{
   const url = new URL(e.request.url);
+  const isStaticAsset = url.pathname.includes('/icons/') || url.pathname.includes('/assets/');
 
-  if(url.pathname.endsWith('wines.json')){
-    e.respondWith(
-      fetch(e.request).then(res=>{
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache=>cache.put(e.request, clone));
-        return res;
-      }).catch(()=>caches.match(e.request))
-    );
+  if(isStaticAsset){
+    e.respondWith(caches.match(e.request).then(cached=>cached || fetch(e.request)));
     return;
   }
 
   e.respondWith(
-    caches.match(e.request).then(cached=>cached || fetch(e.request))
+    fetch(e.request).then(res=>{
+      const clone = res.clone();
+      caches.open(CACHE_NAME).then(cache=>cache.put(e.request, clone));
+      return res;
+    }).catch(()=>caches.match(e.request))
   );
 });

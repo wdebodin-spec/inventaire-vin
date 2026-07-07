@@ -29,6 +29,8 @@ input[type=text]:focus{outline:none;border-color:var(--terra)}
 .fb.active{background:var(--terra);color:#fff;border-color:var(--terra);font-weight:bold}
 .fb.caisse-btn.active{background:#8B3A20;color:#fff;border-color:#8B3A20}
 .fb.caisse-btn:hover{background:rgba(139,58,32,0.12);color:var(--ink);border-color:rgba(139,58,32,0.5)}
+.fb.format-btn.active{background:#1a5a8a;color:#fff;border-color:#1a5a8a}
+.fb.format-btn:hover{background:rgba(26,90,138,0.12);color:var(--ink);border-color:rgba(26,90,138,0.5)}
 .filter-label{font-size:0.68rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;padding:5px 0}
 select{background:var(--bg3);border:1px solid var(--border);color:var(--ink);padding:6px 10px;border-radius:6px;font-size:0.82rem}
 .btn-add{background:var(--terra);color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.85rem;margin-left:auto;white-space:nowrap}
@@ -44,6 +46,7 @@ main{padding:20px 28px}
 .c-year{font-size:1.5rem;font-weight:bold;color:var(--terra);text-align:right;line-height:1}
 .c-reg{font-size:0.67rem;color:var(--ink2);text-align:right}
 .c-caisse-tag{display:inline-block;font-size:0.62rem;color:#8a3f22;background:rgba(139,58,32,0.12);border:1px solid rgba(139,58,32,0.35);border-radius:10px;padding:1px 7px;margin-top:3px;text-align:right}
+.c-format-tag{display:inline-block;font-size:0.62rem;color:#1a5a8a;background:rgba(26,90,138,0.12);border:1px solid rgba(26,90,138,0.35);border-radius:10px;padding:1px 7px;margin-top:3px;text-align:right}
 .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:0.67rem;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
 .badge-rouge{background:rgba(139,26,26,.12);color:#8a1a1a;border:1px solid rgba(139,26,26,.35)}
 .badge-blanc{background:rgba(201,168,76,.18);color:var(--dore);border:1px solid rgba(201,168,76,.4)}

@@ -13,7 +13,7 @@ function mergeWithLocal(fromFile, local){
   return local;
 }
 
-let wines = [], fColor='all', fCaisse='all', search='', sort='status';
+let wines = [], fColor='all', fCaisse='all', fFormat='all', search='', sort='status';
 
 function status(w){
   if(w.couleur==='inconnu') return{k:'unk',lbl:'❓ À identifier',c:'s-pa'};
@@ -59,7 +59,8 @@ function card(w){
       <div>
         <div class="c-year">${w.millesime||'—'}</div>
         <div class="c-reg">${w.region||''}</div>
-        <div class="c-caisse-tag">Caisse ${w.caisse||'—'}</div>
+        <div class="c-caisse-tag">${w.caisse?`Caisse ${w.caisse}`:'Hors caisse'}</div>
+        ${w.format&&w.format!=='bouteille'?`<div class="c-format-tag">${{'magnum':'Magnum','jeroboam':'Jéroboam'}[w.format]||w.format}</div>`:''}
       </div>
     </div>
     <span class="badge ${bc}">${cl}</span>
@@ -88,6 +89,7 @@ function filtered(){
   let list=wines.slice();
   if(fColor!=='all') list=list.filter(w=>w.couleur===fColor);
   if(fCaisse!=='all') list=list.filter(w=>String(w.caisse)===fCaisse);
+  if(fFormat!=='all') list=list.filter(w=>(w.format||'bouteille')===fFormat);
   if(search){const q=search.toLowerCase();list=list.filter(w=>[w.domaine,w.vin,w.appellation||'',w.region||'',String(w.millesime||'')].join(' ').toLowerCase().includes(q))}
   if(sort==='status') list.sort((a,b)=>sOrder(a)-sOrder(b)||(a.apogee_debut||0)-(b.apogee_debut||0));
   else if(sort==='mil_asc') list.sort((a,b)=>(a.millesime||9999)-(b.millesime||9999));
@@ -114,7 +116,7 @@ function render(){
     `<div class="stat"><div class="stat-v">${tot}</div><div class="stat-l">Total</div></div>
      <div class="stat"><div class="stat-v">${r}</div><div class="stat-l">Rouges</div></div>
      <div class="stat"><div class="stat-v">${b}</div><div class="stat-l">Blancs</div></div>
-     <div class="stat"><div class="stat-v">${p}</div><div class="stat-l">Portaux</div></div>`;
+     <div class="stat"><div class="stat-v">${p}</div><div class="stat-l">Portos</div></div>`;
 
   document.querySelectorAll('.caisse-btn[data-c]').forEach(btn=>{
     const c=btn.dataset.c;
@@ -137,6 +139,7 @@ function openModal(w=null){
   document.getElementById('fm').value=w?.millesime||'';
   document.getElementById('fc').value=w?.couleur||'rouge';
   document.getElementById('fq').value=w?.quantite??1;
+  document.getElementById('ffo').value=w?.format||'bouteille';
   document.getElementById('fca').value=w?.caisse||'';
   document.getElementById('fdb').value=w?.debut||'';
   document.getElementById('ffn').value=w?.fin||'';
@@ -159,6 +162,7 @@ function saveWine(){
     millesime:parseInt(document.getElementById('fm').value)||null,
     couleur:document.getElementById('fc').value,
     quantite:parseInt(document.getElementById('fq').value)||0,
+    format:document.getElementById('ffo').value,
     caisse:parseInt(document.getElementById('fca').value)||null,
     debut:parseInt(document.getElementById('fdb').value)||NOW,
     fin:parseInt(document.getElementById('ffn').value)||NOW+5,
@@ -183,6 +187,11 @@ document.getElementById('f-caisse').addEventListener('click',e=>{
   const btn=e.target.closest('.fb');if(!btn)return;
   document.querySelectorAll('#f-caisse .fb').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');fCaisse=btn.dataset.c;render();
+});
+document.getElementById('f-format').addEventListener('click',e=>{
+  const btn=e.target.closest('.fb');if(!btn)return;
+  document.querySelectorAll('#f-format .fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');fFormat=btn.dataset.fo;render();
 });
 document.getElementById('ov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
 
