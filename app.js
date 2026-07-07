@@ -4,13 +4,19 @@ const STORAGE_KEY = 'cave_w3';
 function loadLocal(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s)}catch(e){}return null}
 function save(w){localStorage.setItem(STORAGE_KEY,JSON.stringify(w))}
 
-// Merge fresh entries from wines.json into whatever is already stored locally,
-// so edits made in the app (quantities, notes...) survive updates to the source file.
+// Merge fresh entries from wines.json into whatever is already stored locally.
+// Content fields always come from the file (so corrections/new fields propagate);
+// only quantite is kept from local storage, since that's the field the app itself edits.
 function mergeWithLocal(fromFile, local){
   if(!local) return JSON.parse(JSON.stringify(fromFile));
   const byId = new Map(local.map(w=>[w.id,w]));
-  for(const w of fromFile){ if(!byId.has(w.id)) local.push(w); }
-  return local;
+  const merged = fromFile.map(w=>{
+    const l = byId.get(w.id);
+    return l ? {...w, quantite:l.quantite} : w;
+  });
+  const fileIds = new Set(fromFile.map(w=>w.id));
+  for(const w of local){ if(!fileIds.has(w.id)) merged.push(w); }
+  return merged;
 }
 
 let wines = [], fColor='all', fCaisse='all', fFormat='all', search='', sort='status';
