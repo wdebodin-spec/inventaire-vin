@@ -212,24 +212,27 @@ function saveWine(){
   save(wines);closeModal();render();
 }
 
-// Hand-traced simplified outline (not a precise geo projection, but follows the real
-// coastline/border shape: Brittany, Cotentin, Bay of Biscay, Pyrenees, Côte d'Azur, Alsace).
-// Points are run through a Catmull-Rom→Bézier smoother (see smoothPath) so the coastline
-// reads as a curve rather than a jagged polygon. Only French regions are shown for now —
-// entries with no matching region here (e.g. Portugal) are left out of the map entirely.
-const FRANCE_POINTS=[[240,20],[272,34],[310,55],[345,72],[365,90],[372,150],[365,190],[395,230],[410,280],[440,330],[400,362],[350,382],[300,392],[270,397],[232,402],[182,412],[100,402],[75,352],[60,302],[55,252],[65,202],[45,182],[15,160],[35,130],[75,112],[110,72],[150,90],[190,62]];
-const CORSICA_POINTS=[[452,392],[462,400],[458,425],[466,445],[456,470],[444,450],[440,415]];
-const MOUNTAINS=[[400,225],[380,265],[150,405],[190,400],[255,300]]; // Alps, Pyrenees, Massif Central hints
+// Real mainland-France and Corsica coastlines (from a public domain-style country
+// GeoJSON), equirectangular-projected (lon×cos(46.5°), lat flipped) into this SVG's
+// coordinate space — not a hand-drawn approximation. Points are run through a
+// Catmull-Rom→Bézier smoother (see smoothPath) so the coastline reads as a curve
+// rather than a jagged polygon. Region pins are placed the same way, from each wine
+// region's approximate real lon/lat, so they land in roughly the right spot.
+// Only French regions are shown for now — entries with no matching region here
+// (e.g. Portugal) are left out of the map entirely.
+const FRANCE_POINTS=[[334.2,75.5],[360.2,101.0],[379.2,96.8],[411.8,121.4],[420.1,126.1],[430.8,125.0],[448.3,139.1],[501.9,149.0],[483.1,186.0],[478.4,224.5],[468.2,233.7],[451.3,228.7],[452.5,242.5],[425.3,272.8],[424.7,297.3],[442.5,288.8],[455.2,312.5],[453.7,327.7],[464.6,348.0],[451.8,364.5],[461.3,406.2],[481.5,413.1],[477.2,436.5],[443.6,467.0],[370.2,452.4],[316.1,469.9],[311.8,502.5],[268.8,509.5],[226.9,485.0],[213.4,496.7],[145.0,472.2],[130.2,451.2],[149.4,418.8],[156.5,311.2],[118.1,254.5],[90.7,227.2],[33.9,206.4],[30.2,167.1],[78.3,155.3],[140.8,169.2],[129.0,108.1],[164.1,131.2],[250.6,89.1],[261.8,44.9],[294.3,34.0],[299.7,53.0],[317.0,53.9]];
+const CORSICA_POINTS=[[556.2,519.8],[543.9,561.5],[527.1,550.5],[518.5,514.1],[526.0,494.1],[549.9,473.5]];
+const MOUNTAINS=[[453.6,349.8],[461.1,301.2],[219.4,484.8],[267.8,490.2],[312.4,366.0]]; // Alps, Pyrenees, Massif Central hints
 const REGION_POS={
-  'Normandie':[150,90],
-  'Lorraine':[330,105],
-  'Vallée de la Loire':[135,235],
-  'Bourgogne':[290,205],
-  'Bordeaux':[105,315],
-  'Vallée du Rhône Nord':[325,285],
-  'Vallée du Rhône Sud':[312,348],
-  'Provence':[398,366],
-  'Languedoc-Roussillon':[245,392],
+  'Normandie':[219.4,144.6],
+  'Lorraine':[429.5,166.2],
+  'Vallée de la Loire':[215.7,241.8],
+  'Bourgogne':[377.4,249.9],
+  'Bordeaux':[179.3,374.6],
+  'Vallée du Rhône Nord':[381.1,352.5],
+  'Vallée du Rhône Sud':[379.3,417.3],
+  'Provence':[445,450],
+  'Languedoc-Roussillon':[308.7,465.9],
 };
 
 // Closed Catmull-Rom spline through `pts`, converted to cubic Bézier segments —
@@ -275,7 +278,7 @@ function openMap(){
 
   document.getElementById('map-content').innerHTML=`
     <div class="map-wrap">
-      <svg class="map-svg" viewBox="0 0 480 500" width="340" height="354">
+      <svg class="map-svg" viewBox="0 0 580 585" width="360" height="363">
         <defs>
           <radialGradient id="landGrad" cx="32%" cy="26%" r="85%">
             <stop offset="0%" stop-color="#F7EFDC"></stop>
