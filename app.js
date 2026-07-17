@@ -213,11 +213,13 @@ function saveWine(){
 }
 
 // Hand-traced simplified outline (not a precise geo projection, but follows the real
-// coastline/border shape: Brittany, Cotentin, Bay of Biscay, Pyrenees, Côte d'Azur, Alsace)
-// for the regions currently used in wines.json. Only French regions are shown for now —
+// coastline/border shape: Brittany, Cotentin, Bay of Biscay, Pyrenees, Côte d'Azur, Alsace).
+// Points are run through a Catmull-Rom→Bézier smoother (see smoothPath) so the coastline
+// reads as a curve rather than a jagged polygon. Only French regions are shown for now —
 // entries with no matching region here (e.g. Portugal) are left out of the map entirely.
-const FRANCE_PATH='M240,20 L272,34 L310,55 L345,72 L365,90 L372,150 L365,190 L395,230 L410,280 L440,330 L400,362 L350,382 L300,392 L270,397 L232,402 L182,412 L100,402 L75,352 L60,302 L55,252 L65,202 L45,182 L15,160 L35,130 L75,112 L110,72 L150,90 L190,62 Z';
-const CORSICA_PATH='M452,392 L462,400 L458,425 L466,445 L456,470 L444,450 L440,415 Z';
+const FRANCE_POINTS=[[240,20],[272,34],[310,55],[345,72],[365,90],[372,150],[365,190],[395,230],[410,280],[440,330],[400,362],[350,382],[300,392],[270,397],[232,402],[182,412],[100,402],[75,352],[60,302],[55,252],[65,202],[45,182],[15,160],[35,130],[75,112],[110,72],[150,90],[190,62]];
+const CORSICA_POINTS=[[452,392],[462,400],[458,425],[466,445],[456,470],[444,450],[440,415]];
+const MOUNTAINS=[[400,225],[380,265],[150,405],[190,400],[255,300]]; // Alps, Pyrenees, Massif Central hints
 const REGION_POS={
   'Normandie':[150,90],
   'Lorraine':[330,105],
@@ -229,6 +231,23 @@ const REGION_POS={
   'Provence':[398,366],
   'Languedoc-Roussillon':[245,392],
 };
+
+// Closed Catmull-Rom spline through `pts`, converted to cubic Bézier segments —
+// gives a natural coastline curve instead of straight polygon edges.
+function smoothPath(pts){
+  const n=pts.length;
+  const d=[`M${pts[0][0]},${pts[0][1]}`];
+  for(let i=0;i<n;i++){
+    const p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    const c1x=p1[0]+(p2[0]-p0[0])/6, c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6, c2y=p2[1]-(p3[1]-p1[1])/6;
+    d.push(`C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`);
+  }
+  d.push('Z');
+  return d.join(' ');
+}
+const FRANCE_PATH=smoothPath(FRANCE_POINTS);
+const CORSICA_PATH=smoothPath(CORSICA_POINTS);
 
 function openMap(){
   const byRegion=new Map();
@@ -242,27 +261,66 @@ function openMap(){
   const pins=entries.map(([name,qty])=>{
     const[x,y]=REGION_POS[name];
     const rr=rad(qty);
-    return`<g>
+    const esc=name.replace(/'/g,"\\'");
+    return`<g class="map-pin" onclick="showRegionWines('${esc}')">
       <circle class="map-pin-c" cx="${x}" cy="${y}" r="${rr}"></circle>
       <text class="map-pin-n" x="${x}" y="${y+4}">${qty}</text>
       <text class="map-pin-lbl" x="${x}" y="${y+rr+13}" text-anchor="middle">${name}</text>
     </g>`;
   }).join('');
 
-  const legend=entries.map(([name,qty])=>`<div class="map-legend-row"><span>${name}</span><b>${qty}</b></div>`).join('');
+  const mountains=MOUNTAINS.map(([x,y])=>`<text class="map-mtn" x="${x}" y="${y}">⛰</text>`).join('');
+
+  const legend=entries.map(([name,qty])=>`<div class="map-legend-row" onclick="showRegionWines('${name.replace(/'/g,"\\'")}')"><span>${name}</span><b>${qty}</b></div>`).join('');
 
   document.getElementById('map-content').innerHTML=`
     <div class="map-wrap">
       <svg class="map-svg" viewBox="0 0 480 500" width="340" height="354">
-        <path d="${FRANCE_PATH}" class="map-land" stroke-linejoin="round" stroke-linecap="round"></path>
-        <path d="${CORSICA_PATH}" class="map-land" stroke-linejoin="round" stroke-linecap="round"></path>
+        <defs>
+          <radialGradient id="landGrad" cx="32%" cy="26%" r="85%">
+            <stop offset="0%" stop-color="#F7EFDC"></stop>
+            <stop offset="100%" stop-color="#DCC89C"></stop>
+          </radialGradient>
+        </defs>
+        <path d="${FRANCE_PATH}" class="map-land-shadow" transform="translate(3,5)"></path>
+        <path d="${CORSICA_PATH}" class="map-land-shadow" transform="translate(3,5)"></path>
+        <path d="${FRANCE_PATH}" class="map-land"></path>
+        <path d="${CORSICA_PATH}" class="map-land"></path>
+        ${mountains}
         ${pins}
       </svg>
       <div class="map-legend">${legend}</div>
-    </div>`;
+    </div>
+    <div id="map-detail"></div>`;
   document.getElementById('map-ov').classList.add('open');
 }
 function closeMap(){document.getElementById('map-ov').classList.remove('open')}
+
+function showRegionWines(name){
+  const list=wines.filter(w=>(w.region||'Inconnu')===name);
+  const groups=new Map();
+  for(const w of list){
+    const k=groupKey(w);
+    if(!groups.has(k)) groups.set(k,[]);
+    groups.get(k).push(w);
+  }
+  const rows=[...groups.values()].sort((a,b)=>b.reduce((s,e)=>s+e.quantite,0)-a.reduce((s,e)=>s+e.quantite,0)).map(g=>{
+    const w=g[0];
+    const qty=g.reduce((s,e)=>s+e.quantite,0);
+    const caisses=[...new Set(g.map(e=>e.caisse))].filter(c=>c!=null).sort((a,b)=>a-b);
+    return`<div class="map-detail-row">
+      <div>
+        <div class="map-detail-dom">${w.domaine} — ${w.vin}${w.millesime?' '+w.millesime:''}</div>
+        <div class="map-detail-meta">${w.appellation||''} · Caisse${caisses.length>1?'s':''} ${caisses.join(', ')||'—'}</div>
+      </div>
+      <b>${qty}</b>
+    </div>`;
+  }).join('');
+  document.getElementById('map-detail').innerHTML=`
+    <div class="map-detail-hd"><span>${name}</span><button class="bsm" onclick="closeRegionWines()">✕</button></div>
+    ${rows||'<div class="map-detail-meta">Aucun vin</div>'}`;
+}
+function closeRegionWines(){const el=document.getElementById('map-detail');if(el)el.innerHTML=''}
 
 // Events
 document.getElementById('search').addEventListener('input',e=>{search=e.target.value;render()});
