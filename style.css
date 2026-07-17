@@ -106,8 +106,9 @@ main{padding:20px 28px}
 .map-btn{background:#fff;color:var(--terra);border:1px solid rgba(179,111,99,0.5);padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:0.8rem;white-space:nowrap}
 .map-btn:hover{background:rgba(179,111,99,0.1)}
 .map-wrap{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
-.map-svg{flex:0 0 auto}
-.map-pin-c{fill:var(--terra);fill-opacity:.78;stroke:#fff;stroke-width:1.5}
+.map-svg{flex:0 0 auto;filter:drop-shadow(0 3px 6px rgba(43,46,39,.18))}
+.map-land{fill:#EFE4CC;stroke:var(--terra-soft);stroke-width:2.5}
+.map-pin-c{fill:var(--terra);fill-opacity:.85;stroke:#fff;stroke-width:2}
 .map-pin-lbl{font-size:11px;fill:var(--ink);font-family:Georgia,serif}
 .map-pin-n{font-size:10px;font-weight:bold;fill:#fff;text-anchor:middle;font-family:Georgia,serif}
 .map-legend{flex:1;min-width:180px;font-size:0.8rem}

@@ -212,20 +212,22 @@ function saveWine(){
   save(wines);closeModal();render();
 }
 
-// Hand-placed approximate positions (stylized outline, not a precise geo projection)
+// Hand-traced simplified outline (not a precise geo projection, but follows the real
+// coastline/border shape: Brittany, Cotentin, Bay of Biscay, Pyrenees, Côte d'Azur, Alsace)
 // for the regions currently used in wines.json. Only French regions are shown for now —
 // entries with no matching region here (e.g. Portugal) are left out of the map entirely.
-const FRANCE_PATH='M210,15 L360,100 L378,200 L402,280 L432,375 L372,425 L260,445 L90,435 L55,325 L20,195 L70,120 L130,65 Z';
+const FRANCE_PATH='M240,20 L272,34 L310,55 L345,72 L365,90 L372,150 L365,190 L395,230 L410,280 L440,330 L400,362 L350,382 L300,392 L270,397 L232,402 L182,412 L100,402 L75,352 L60,302 L55,252 L65,202 L45,182 L15,160 L35,130 L75,112 L110,72 L150,90 L190,62 Z';
+const CORSICA_PATH='M452,392 L462,400 L458,425 L466,445 L456,470 L444,450 L440,415 Z';
 const REGION_POS={
-  'Normandie':[140,90],
-  'Lorraine':[335,120],
-  'Vallée de la Loire':[130,255],
-  'Bourgogne':[300,210],
-  'Bordeaux':[95,355],
-  'Vallée du Rhône Nord':[330,300],
-  'Vallée du Rhône Sud':[345,395],
-  'Provence':[410,400],
-  'Languedoc-Roussillon':[230,430],
+  'Normandie':[150,90],
+  'Lorraine':[330,105],
+  'Vallée de la Loire':[135,235],
+  'Bourgogne':[290,205],
+  'Bordeaux':[105,315],
+  'Vallée du Rhône Nord':[325,285],
+  'Vallée du Rhône Sud':[312,348],
+  'Provence':[398,366],
+  'Languedoc-Roussillon':[245,392],
 };
 
 function openMap(){
@@ -251,8 +253,9 @@ function openMap(){
 
   document.getElementById('map-content').innerHTML=`
     <div class="map-wrap">
-      <svg class="map-svg" viewBox="0 0 480 560" width="300" height="350">
-        <path d="${FRANCE_PATH}" fill="#F2EAD8" stroke="#B36F63" stroke-width="2"></path>
+      <svg class="map-svg" viewBox="0 0 480 500" width="340" height="354">
+        <path d="${FRANCE_PATH}" class="map-land" stroke-linejoin="round" stroke-linecap="round"></path>
+        <path d="${CORSICA_PATH}" class="map-land" stroke-linejoin="round" stroke-linecap="round"></path>
         ${pins}
       </svg>
       <div class="map-legend">${legend}</div>
