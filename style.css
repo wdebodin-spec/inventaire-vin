@@ -52,6 +52,7 @@ main{padding:20px 28px}
 .badge-blanc{background:rgba(201,168,76,.18);color:var(--dore);border:1px solid rgba(201,168,76,.4)}
 .badge-porto{background:rgba(120,40,120,.12);color:#7a2d7a;border:1px solid rgba(120,40,120,.35)}
 .badge-inconnu{background:rgba(80,80,80,.1);color:#555;border:1px solid rgba(80,80,80,.3)}
+.badge-spiritueux{background:rgba(140,90,20,.14);color:#8a5c14;border:1px solid rgba(140,90,20,.4)}
 .status{display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border-radius:20px;font-size:0.72rem;font-weight:bold;margin-bottom:9px}
 .s-tt{background:rgba(26,74,107,.1);color:#1a4a6b;border:1px solid rgba(26,74,107,.35)}
 .s-bt{background:rgba(180,140,20,.12);color:#8a6a10;border:1px solid rgba(180,140,20,.4)}

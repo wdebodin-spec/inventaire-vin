@@ -48,13 +48,40 @@ function tl(w){
   </div>`;
 }
 
-function card(w){
+// Same wine spread across several caisses (added at different times) is grouped
+// into a single card so the grid doesn't repeat the whole card for each caisse;
+// the per-caisse quantity/edit/delete rows stay separate underneath.
+function groupKey(w){return [w.domaine,w.vin,w.millesime,w.format].join('|')}
+
+function card(group){
+  const w=group[0];
+  const multi=group.length>1;
   const st=status(w);
-  const bc={'rouge':'badge-rouge','blanc':'badge-blanc','porto':'badge-porto','inconnu':'badge-inconnu'}[w.couleur]||'badge-inconnu';
-  const cl={'rouge':'🍷 Rouge','blanc':'🥂 Blanc','porto':'🍶 Porto','inconnu':'❓ Inconnu'}[w.couleur];
+  const bc={'rouge':'badge-rouge','blanc':'badge-blanc','porto':'badge-porto','spiritueux':'badge-spiritueux','inconnu':'badge-inconnu'}[w.couleur]||'badge-inconnu';
+  const cl={'rouge':'🍷 Rouge','blanc':'🥂 Blanc','porto':'🍶 Porto','spiritueux':'🥃 Spiritueux','inconnu':'❓ Inconnu'}[w.couleur];
   const wt=w.couleur!=='inconnu'
     ?`<div class="w-text">Fenêtre : <strong>${w.debut}–${w.fin}</strong> &nbsp;|&nbsp; Apogée : <strong>${w.apogee_debut}–${w.apogee_fin}</strong></div>`
     :'';
+  const formatLbl={'magnum':'Magnum','jeroboam':'Jéroboam','mignonnette':'Mignonnette'}[w.format]||w.format;
+  const caisses=[...new Set(group.map(e=>e.caisse))].filter(c=>c!=null).sort((a,b)=>a-b);
+  const caisseLbl=caisses.length?`Caisse${caisses.length>1?'s':''} ${caisses.join(', ')}`:'Hors caisse';
+  const total=group.reduce((s,e)=>s+e.quantite,0);
+  const notes=[...new Set(group.map(e=>e.notes).filter(Boolean))].join(' — ');
+  const rows=group.map(e=>`
+    <div class="qty-row">
+      <span class="qty-l">${multi?`Caisse ${e.caisse??'—'} : `:''}Bouteilles en cave</span>
+      <div style="display:flex;align-items:center">
+        <div class="qty-c">
+          <button class="qb" onclick="chg(${e.id},-1)">−</button>
+          <span class="qv">${e.quantite}</span>
+          <button class="qb" onclick="chg(${e.id},1)">+</button>
+        </div>
+        <div class="acts">
+          <button class="bsm" onclick="edit(${e.id})">✏</button>
+          <button class="bsm bdel" onclick="del(${e.id})">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
   return`<div class="card">
     <div class="card-top">
       <div>
@@ -65,29 +92,16 @@ function card(w){
       <div>
         <div class="c-year">${w.millesime||'—'}</div>
         <div class="c-reg">${w.region||''}</div>
-        <div class="c-caisse-tag">${w.caisse?`Caisse ${w.caisse}`:'Hors caisse'}</div>
-        ${w.format&&w.format!=='bouteille'?`<div class="c-format-tag">${{'magnum':'Magnum','jeroboam':'Jéroboam'}[w.format]||w.format}</div>`:''}
+        <div class="c-caisse-tag">${caisseLbl}</div>
+        ${w.format&&w.format!=='bouteille'?`<div class="c-format-tag">${formatLbl}</div>`:''}
       </div>
     </div>
     <span class="badge ${bc}">${cl}</span>
-    <div><span class="status ${st.c}">${st.lbl}</span></div>
+    <div><span class="status ${st.c}">${st.lbl}</span>${multi?`<span class="c-caisse-tag" style="margin-left:6px">Total : ${total}</span>`:''}</div>
     ${tl(w)}
     ${wt}
-    ${w.notes?`<div class="notes">${w.notes}</div>`:''}
-    <div class="qty-row">
-      <span class="qty-l">Bouteilles en cave</span>
-      <div style="display:flex;align-items:center">
-        <div class="qty-c">
-          <button class="qb" onclick="chg(${w.id},-1)">−</button>
-          <span class="qv">${w.quantite}</span>
-          <button class="qb" onclick="chg(${w.id},1)">+</button>
-        </div>
-        <div class="acts">
-          <button class="bsm" onclick="edit(${w.id})">✏</button>
-          <button class="bsm bdel" onclick="del(${w.id})">✕</button>
-        </div>
-      </div>
-    </div>
+    ${notes?`<div class="notes">${notes}</div>`:''}
+    ${rows}
   </div>`;
 }
 
@@ -108,8 +122,15 @@ function filtered(){
 
 function render(){
   const list=filtered();
-  document.getElementById('grid').innerHTML=list.length
-    ?list.map(card).join('')
+  const groups=[];
+  const idx=new Map();
+  for(const w of list){
+    const k=groupKey(w);
+    if(idx.has(k)) groups[idx.get(k)].push(w);
+    else{idx.set(k,groups.length);groups.push([w])}
+  }
+  document.getElementById('grid').innerHTML=groups.length
+    ?groups.map(card).join('')
     :`<div class="empty"><div class="empty-i">🍾</div><p>Aucun vin correspondant</p></div>`;
 
   const all=wines;
@@ -117,18 +138,22 @@ function render(){
   const r=all.filter(w=>w.couleur==='rouge').reduce((s,w)=>s+w.quantite,0);
   const b=all.filter(w=>w.couleur==='blanc').reduce((s,w)=>s+w.quantite,0);
   const p=all.filter(w=>w.couleur==='porto').reduce((s,w)=>s+w.quantite,0);
+  const sp=all.filter(w=>w.couleur==='spiritueux').reduce((s,w)=>s+w.quantite,0);
   const bt=all.filter(w=>w.format==='bouteille').reduce((s,w)=>s+w.quantite,0);
   const mg=all.filter(w=>w.format==='magnum').reduce((s,w)=>s+w.quantite,0);
   const jb=all.filter(w=>w.format==='jeroboam').reduce((s,w)=>s+w.quantite,0);
+  const mn=all.filter(w=>w.format==='mignonnette').reduce((s,w)=>s+w.quantite,0);
   const cc=c=>all.filter(w=>w.caisse===c).reduce((s,w)=>s+w.quantite,0);
   document.getElementById('stats').innerHTML=
     `<div class="stat"><div class="stat-v">${tot}</div><div class="stat-l">Total</div></div>
      <div class="stat"><div class="stat-v">${r}</div><div class="stat-l">Rouges</div></div>
      <div class="stat"><div class="stat-v">${b}</div><div class="stat-l">Blancs</div></div>
      <div class="stat"><div class="stat-v">${p}</div><div class="stat-l">Portos</div></div>
+     ${sp?`<div class="stat"><div class="stat-v">${sp}</div><div class="stat-l">Spiritueux</div></div>`:''}
      <div class="stat"><div class="stat-v">${bt}</div><div class="stat-l">Bouteilles</div></div>
      <div class="stat"><div class="stat-v">${mg}</div><div class="stat-l">Magnums</div></div>
-     <div class="stat"><div class="stat-v">${jb}</div><div class="stat-l">Jéroboams</div></div>`;
+     <div class="stat"><div class="stat-v">${jb}</div><div class="stat-l">Jéroboams</div></div>
+     ${mn?`<div class="stat"><div class="stat-v">${mn}</div><div class="stat-l">Mignonnettes</div></div>`:''}`;
 
   document.querySelectorAll('.caisse-btn[data-c]').forEach(btn=>{
     const c=btn.dataset.c;

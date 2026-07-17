@@ -46,6 +46,7 @@
         <button class="fb" data-f="rouge">Rouges</button>
         <button class="fb" data-f="blanc">Blancs</button>
         <button class="fb" data-f="porto">Portos</button>
+        <button class="fb" data-f="spiritueux">Spiritueux</button>
       </div>
       <select id="sort">
         <option value="status">À boire bientôt</option>
@@ -84,6 +85,10 @@
         <button class="fb caisse-btn" data-c="20">Caisse 20</button>
         <button class="fb caisse-btn" data-c="21">Caisse 21</button>
         <button class="fb caisse-btn" data-c="22">Caisse 22</button>
+        <button class="fb caisse-btn" data-c="24">Caisse 24</button>
+        <button class="fb caisse-btn" data-c="25">Caisse 25</button>
+        <button class="fb caisse-btn" data-c="26">Caisse 26</button>
+        <button class="fb caisse-btn" data-c="27">Caisse 27</button>
       </div>
     </div>
     <!-- Ligne 3 : filtre par format -->
@@ -94,6 +99,7 @@
         <button class="fb format-btn" data-fo="bouteille">Bouteille</button>
         <button class="fb format-btn" data-fo="magnum">Magnum</button>
         <button class="fb format-btn" data-fo="jeroboam">Jéroboam</button>
+        <button class="fb format-btn" data-fo="mignonnette">Mignonnette</button>
       </div>
     </div>
   </div>
@@ -111,11 +117,11 @@
       <div class="fg"><label>Région</label><input id="frg" placeholder="ex: Bourgogne"></div>
       <div class="fg"><label>Millésime</label><input type="number" id="fm" placeholder="2021" min="1900" max="2030"></div>
       <div class="fg"><label>Couleur</label>
-        <select id="fc"><option value="rouge">Rouge</option><option value="blanc">Blanc</option><option value="porto">Porto / Liquoreux</option><option value="inconnu">Inconnu</option></select>
+        <select id="fc"><option value="rouge">Rouge</option><option value="blanc">Blanc</option><option value="porto">Porto / Liquoreux</option><option value="spiritueux">Spiritueux</option><option value="inconnu">Inconnu</option></select>
       </div>
       <div class="fg"><label>Quantité</label><input type="number" id="fq" value="1" min="0" max="99"></div>
       <div class="fg"><label>Format</label>
-        <select id="ffo"><option value="bouteille">Bouteille (75cl)</option><option value="magnum">Magnum (1,5L)</option><option value="jeroboam">Jéroboam (3L)</option></select>
+        <select id="ffo"><option value="bouteille">Bouteille (75cl)</option><option value="magnum">Magnum (1,5L)</option><option value="jeroboam">Jéroboam (3L)</option><option value="mignonnette">Mignonnette (37,5cl)</option></select>
       </div>
       <div class="fg"><label>Caisse n°</label><input type="number" id="fca" placeholder="1" min="1"></div>
     </div>
