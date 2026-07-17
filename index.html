@@ -33,6 +33,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="stats" id="stats"></div>
+      <button class="map-btn" onclick="openMap()">🗺️ Carte des régions</button>
       <button class="install-btn" id="install-btn">📲 Installer l'app</button>
     </div>
   </div>
@@ -136,6 +137,16 @@
     <div class="mf">
       <button class="bc" onclick="closeModal()">Annuler</button>
       <button class="bs" onclick="saveWine()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="map-ov">
+  <div class="modal" style="width:640px">
+    <h2>Répartition par région</h2>
+    <div id="map-content"></div>
+    <div class="mf">
+      <button class="bc" onclick="closeMap()">Fermer</button>
     </div>
   </div>
 </div>

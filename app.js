@@ -212,6 +212,55 @@ function saveWine(){
   save(wines);closeModal();render();
 }
 
+// Hand-placed approximate positions (stylized outline, not a precise geo projection)
+// for the regions currently used in wines.json. Only French regions are shown for now —
+// entries with no matching region here (e.g. Portugal) are left out of the map entirely.
+const FRANCE_PATH='M210,15 L360,100 L378,200 L402,280 L432,375 L372,425 L260,445 L90,435 L55,325 L20,195 L70,120 L130,65 Z';
+const REGION_POS={
+  'Normandie':[140,90],
+  'Lorraine':[335,120],
+  'Vallée de la Loire':[130,255],
+  'Bourgogne':[300,210],
+  'Bordeaux':[95,355],
+  'Vallée du Rhône Nord':[330,300],
+  'Vallée du Rhône Sud':[345,395],
+  'Provence':[410,400],
+  'Languedoc-Roussillon':[230,430],
+};
+
+function openMap(){
+  const byRegion=new Map();
+  for(const w of wines){
+    const r=w.region||'Inconnu';
+    byRegion.set(r,(byRegion.get(r)||0)+w.quantite);
+  }
+  const entries=[...byRegion.entries()].filter(([name])=>REGION_POS[name]).sort((a,b)=>b[1]-a[1]);
+  const rad=q=>Math.max(12,Math.min(32,8+Math.sqrt(q)*3));
+
+  const pins=entries.map(([name,qty])=>{
+    const[x,y]=REGION_POS[name];
+    const rr=rad(qty);
+    return`<g>
+      <circle class="map-pin-c" cx="${x}" cy="${y}" r="${rr}"></circle>
+      <text class="map-pin-n" x="${x}" y="${y+4}">${qty}</text>
+      <text class="map-pin-lbl" x="${x}" y="${y+rr+13}" text-anchor="middle">${name}</text>
+    </g>`;
+  }).join('');
+
+  const legend=entries.map(([name,qty])=>`<div class="map-legend-row"><span>${name}</span><b>${qty}</b></div>`).join('');
+
+  document.getElementById('map-content').innerHTML=`
+    <div class="map-wrap">
+      <svg class="map-svg" viewBox="0 0 480 560" width="300" height="350">
+        <path d="${FRANCE_PATH}" fill="#F2EAD8" stroke="#B36F63" stroke-width="2"></path>
+        ${pins}
+      </svg>
+      <div class="map-legend">${legend}</div>
+    </div>`;
+  document.getElementById('map-ov').classList.add('open');
+}
+function closeMap(){document.getElementById('map-ov').classList.remove('open')}
+
 // Events
 document.getElementById('search').addEventListener('input',e=>{search=e.target.value;render()});
 document.getElementById('sort').addEventListener('change',e=>{sort=e.target.value;render()});
@@ -231,6 +280,7 @@ document.getElementById('f-format').addEventListener('click',e=>{
   btn.classList.add('active');fFormat=btn.dataset.fo;render();
 });
 document.getElementById('ov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.getElementById('map-ov').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMap()});
 
 // Simple client-side gate: deters casual visitors who land on the link,
 // not a real security boundary (credentials are readable in this file).
