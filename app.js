@@ -307,14 +307,16 @@ function showRegionWines(name){
     if(!groups.has(k)) groups.set(k,[]);
     groups.get(k).push(w);
   }
+  const fmtLbl={'magnum':'Magnum','jeroboam':'Jéroboam','mignonnette':'Mignonnette'};
   const rows=[...groups.values()].sort((a,b)=>b.reduce((s,e)=>s+e.quantite,0)-a.reduce((s,e)=>s+e.quantite,0)).map(g=>{
     const w=g[0];
     const qty=g.reduce((s,e)=>s+e.quantite,0);
     const caisses=[...new Set(g.map(e=>e.caisse))].filter(c=>c!=null).sort((a,b)=>a-b);
+    const fmt=fmtLbl[w.format]||'Bouteille';
     return`<div class="map-detail-row">
       <div>
         <div class="map-detail-dom">${w.domaine} — ${w.vin}${w.millesime?' '+w.millesime:''}</div>
-        <div class="map-detail-meta">${w.appellation||''} · Caisse${caisses.length>1?'s':''} ${caisses.join(', ')||'—'}</div>
+        <div class="map-detail-meta">${w.appellation||''} · <span class="map-detail-fmt">${fmt}</span> · Caisse${caisses.length>1?'s':''} ${caisses.join(', ')||'—'}</div>
       </div>
       <b>${qty}</b>
     </div>`;
