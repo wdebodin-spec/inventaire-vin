@@ -19,6 +19,9 @@ h1 small{font-family:Georgia,serif;color:var(--ink2);font-size:0.85rem;font-weig
 .stat{text-align:center;padding:8px 16px;background:#fff;border:1px solid rgba(179,111,99,0.35);border-radius:8px;min-width:68px}
 .stat-v{font-size:1.4rem;color:var(--terra);font-weight:bold;line-height:1}
 .stat-l{font-size:0.62rem;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.stat-value{background:var(--terra);border-color:var(--terra)}
+.stat-value .stat-v{color:#fff}
+.stat-value .stat-l{color:rgba(255,255,255,0.8)}
 .controls{display:flex;flex-direction:column;gap:9px}
 .ctrl-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 input[type=text]{background:var(--bg3);border:1px solid var(--border);color:var(--ink);padding:8px 14px;border-radius:6px;font-size:0.85rem;width:200px}
@@ -47,6 +50,7 @@ main{padding:20px 28px}
 .c-reg{font-size:0.67rem;color:var(--ink2);text-align:right}
 .c-caisse-tag{display:inline-block;font-size:0.62rem;color:#8a3f22;background:rgba(139,58,32,0.12);border:1px solid rgba(139,58,32,0.35);border-radius:10px;padding:1px 7px;margin-top:3px;text-align:right}
 .c-format-tag{display:inline-block;font-size:0.62rem;color:#1a5a8a;background:rgba(26,90,138,0.12);border:1px solid rgba(26,90,138,0.35);border-radius:10px;padding:1px 7px;margin-top:3px;text-align:right}
+.c-prix{font-size:0.66rem;color:var(--ink2);margin-top:2px}
 .badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:0.67rem;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
 .badge-rouge{background:rgba(139,26,26,.12);color:#8a1a1a;border:1px solid rgba(139,26,26,.35)}
 .badge-blanc{background:rgba(201,168,76,.18);color:var(--dore);border:1px solid rgba(201,168,76,.4)}

@@ -67,9 +67,10 @@ function card(group){
   const caisseLbl=caisses.length?`Caisse${caisses.length>1?'s':''} ${caisses.join(', ')}`:'Hors caisse';
   const total=group.reduce((s,e)=>s+e.quantite,0);
   const notes=[...new Set(group.map(e=>e.notes).filter(Boolean))].join(' — ');
+  const eur=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const rows=group.map(e=>`
     <div class="qty-row">
-      <span class="qty-l">${multi?`Caisse ${e.caisse??'—'} : `:''}Bouteilles en cave</span>
+      <span class="qty-l">${multi?`Caisse ${e.caisse??'—'} : `:''}Bouteilles en cave${e.prix!=null?`<div class="c-prix">${eur(e.prix)} € / u.${e.quantite>1?` &nbsp;·&nbsp; ${eur(e.prix*e.quantite)} € total`:''}</div>`:''}</span>
       <div style="display:flex;align-items:center">
         <div class="qty-c">
           <button class="qb" onclick="chg(${e.id},-1)">−</button>
@@ -144,6 +145,13 @@ function render(){
   const jb=all.filter(w=>w.format==='jeroboam').reduce((s,w)=>s+w.quantite,0);
   const mn=all.filter(w=>w.format==='mignonnette').reduce((s,w)=>s+w.quantite,0);
   const cc=c=>all.filter(w=>w.caisse===c).reduce((s,w)=>s+w.quantite,0);
+  const valeur=all.reduce((s,w)=>s+(w.prix!=null?w.prix*w.quantite:0),0);
+  const unpriced=all.filter(w=>w.prix==null).reduce((s,w)=>s+w.quantite,0);
+  const valeurFmt=valeur.toLocaleString('fr-FR',{maximumFractionDigits:0});
+  const valeurTitle=[
+    'Prix public (cavistes/négociants), pas prix d\'achat pro',
+    unpriced?`${unpriced} bouteille${unpriced>1?'s':''} sans prix connu, non comptée${unpriced>1?'s':''}`:'',
+  ].filter(Boolean).join(' — ');
   document.getElementById('stats').innerHTML=
     `<div class="stat"><div class="stat-v">${tot}</div><div class="stat-l">Total</div></div>
      <div class="stat"><div class="stat-v">${r}</div><div class="stat-l">Rouges</div></div>
@@ -153,7 +161,8 @@ function render(){
      <div class="stat"><div class="stat-v">${bt}</div><div class="stat-l">Bouteilles</div></div>
      <div class="stat"><div class="stat-v">${mg}</div><div class="stat-l">Magnums</div></div>
      <div class="stat"><div class="stat-v">${jb}</div><div class="stat-l">Jéroboams</div></div>
-     ${mn?`<div class="stat"><div class="stat-v">${mn}</div><div class="stat-l">Mignonnettes</div></div>`:''}`;
+     ${mn?`<div class="stat"><div class="stat-v">${mn}</div><div class="stat-l">Mignonnettes</div></div>`:''}
+     <div class="stat stat-value" title="${valeurTitle}"><div class="stat-v">${valeurFmt} €</div><div class="stat-l">Valeur cave (prix public)${unpriced?' *':''}</div></div>`;
 
   document.querySelectorAll('.caisse-btn[data-c]').forEach(btn=>{
     const c=btn.dataset.c;
