@@ -164,12 +164,10 @@ function render(){
      ${mn?`<div class="stat"><div class="stat-v">${mn}</div><div class="stat-l">Mignonnettes</div></div>`:''}
      <div class="stat stat-value" title="${valeurTitle}"><div class="stat-v">${valeurFmt} €</div><div class="stat-l">Valeur cave (prix public)${unpriced?' *':''}</div></div>`;
 
-  document.querySelectorAll('.caisse-btn[data-c]').forEach(btn=>{
-    const c=btn.dataset.c;
-    if(c==='all'){btn.textContent='Toutes';return}
-    const n=cc(parseInt(c));
-    btn.textContent=`Caisse ${c} (${n})`;
-  });
+  const caisseNums=[...new Set(all.map(w=>w.caisse))].filter(c=>c!=null).sort((a,b)=>a-b);
+  document.getElementById('f-caisse').innerHTML=
+    `<button class="fb caisse-btn${fCaisse==='all'?' active':''}" data-c="all">Toutes</button>`+
+    caisseNums.map(c=>`<button class="fb caisse-btn${fCaisse===String(c)?' active':''}" data-c="${c}">Caisse ${c} (${cc(c)})</button>`).join('');
 }
 
 function chg(id,d){const w=wines.find(w=>w.id===id);if(!w)return;w.quantite=Math.max(0,w.quantite+d);save(wines);render()}
