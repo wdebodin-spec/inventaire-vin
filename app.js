@@ -19,6 +19,7 @@ function mergeWithLocal(fromFile, local){
   return merged;
 }
 
+let fileWines = [];
 let wines = [], fColor='all', fCaisse='all', fFormat='all', search='', sort='status';
 
 function status(w){
@@ -365,10 +366,26 @@ function initApp(){
   document.getElementById('login-gate').classList.remove('open');
   document.getElementById('app-content').style.display = '';
   fetch('wines.json').then(r=>r.json()).catch(()=>[]).then(fromFile=>{
+    fileWines = fromFile;
     wines = mergeWithLocal(fromFile, loadLocal());
     save(wines);
     render();
   });
+}
+
+// Lists what this device changed compared to wines.json (quantities, added and
+// deleted wines) and hands it to the share sheet / clipboard so it can be sent to Claude.
+function exportChanges(){
+  const byId = new Map(fileWines.map(w=>[w.id,w]));
+  const localIds = new Set(wines.map(w=>w.id));
+  const quantites = wines.filter(w=>byId.has(w.id) && byId.get(w.id).quantite!==w.quantite)
+    .map(w=>({id:w.id, vin:`${w.domaine} — ${w.vin} ${w.millesime||''}`.trim(), avant:byId.get(w.id).quantite, apres:w.quantite}));
+  const ajouts = wines.filter(w=>!byId.has(w.id));
+  const suppressions = fileWines.filter(w=>!localIds.has(w.id)).map(w=>({id:w.id, vin:`${w.domaine} — ${w.vin} ${w.millesime||''}`.trim()}));
+  if(!quantites.length && !ajouts.length && !suppressions.length){alert('Aucun changement par rapport à l\'inventaire en ligne.');return}
+  const text = JSON.stringify({export:'cave-william', date:new Date().toISOString(), quantites, ajouts, suppressions}, null, 1);
+  if(navigator.share){navigator.share({title:'Changements cave', text}).catch(()=>{});return}
+  navigator.clipboard.writeText(text).then(()=>alert('Changements copiés — colle-les à Claude.'),()=>prompt('Copie ce texte :', text));
 }
 
 function tryLogin(){
