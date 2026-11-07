@@ -5,14 +5,20 @@ function loadLocal(){try{const s=localStorage.getItem(STORAGE_KEY);if(s)return J
 function save(w){localStorage.setItem(STORAGE_KEY,JSON.stringify(w))}
 
 // Merge fresh entries from wines.json into whatever is already stored locally.
-// Content fields always come from the file (so corrections/new fields propagate);
-// only quantite is kept from local storage, since that's the field the app itself edits.
+// Content fields always come from the file (so corrections/new fields propagate).
+// Quantities are merged as deltas: each local entry remembers the file quantity it was
+// last synced with (_base), so a change made in wines.json is applied on top of the
+// +/- done on this device instead of being masked by it.
+// Entries saved before _base existed use LEGACY_BASE (file quantities prior to that change).
+const LEGACY_BASE = {46:2, 49:4, 97:9};
 function mergeWithLocal(fromFile, local){
-  if(!local) return JSON.parse(JSON.stringify(fromFile));
+  if(!local) return fromFile.map(w=>({...w, _base:w.quantite}));
   const byId = new Map(local.map(w=>[w.id,w]));
   const merged = fromFile.map(w=>{
     const l = byId.get(w.id);
-    return l ? {...w, quantite:l.quantite} : w;
+    if(!l) return {...w, _base:w.quantite};
+    const base = l._base ?? LEGACY_BASE[w.id] ?? w.quantite;
+    return {...w, quantite:Math.max(0, l.quantite + (w.quantite - base)), _base:w.quantite};
   });
   const fileIds = new Set(fromFile.map(w=>w.id));
   for(const w of local){ if(!fileIds.has(w.id)) merged.push(w); }
